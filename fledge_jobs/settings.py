@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-b&7-st%mw@5m2^vi7zt-n63^u!iayxy9mgv&!9rk0ose9^7!y5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*.vercel.app', '127.0.0.1']
+ALLOWED_HOSTS = ['fledgejobs.vercel.app', '127.0.0.1']
 
 AUTH_USER_MODEL = 'user.User'
 
