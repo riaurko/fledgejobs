@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
+import cloudinary
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,12 +23,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-b&7-st%mw@5m2^vi7zt-n63^u!iayxy9mgv&!9rk0ose9^7!y5'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['fledgejobs.vercel.app', '127.0.0.1']
+ALLOWED_HOSTS = ['.vercel.app', '127.0.0.1']
+
+# Default user model
 
 AUTH_USER_MODEL = 'user.User'
 
@@ -39,12 +42,14 @@ INTERNAL_IPS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'whitenoise.runserver_nostatic',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'drf_yasg',
     'rest_framework',
     'djoser',
@@ -53,8 +58,12 @@ INSTALLED_APPS = [
     'job',
 ]
 
+# Middlewares
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -63,7 +72,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Root URL
+
 ROOT_URLCONF = 'fledge_jobs.urls'
+
+# Templates
 
 TEMPLATES = [
     {
@@ -83,6 +96,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'fledge_jobs.wsgi.app'
 
+# CORS Headers
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -97,11 +115,11 @@ WSGI_APPLICATION = 'fledge_jobs.wsgi.app'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('dbname'),
-        'USER': config('user'),
-        'PASSWORD': config('password'),
-        'HOST': config('host'),
-        'PORT': config('port', cast=int)
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT', cast=int)
     }
 }
 
@@ -125,6 +143,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Rest Framework
+
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -135,11 +155,15 @@ REST_FRAMEWORK = {
     ],
 }
 
+# JSON Web Token
+
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT',),
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=4),
     'REFRESH_TOKEN_LIFETIME': timedelta(hours=9),
 }
+
+# Djoser
 
 DJOSER = {
     'SERIALIZERS': {
@@ -147,6 +171,8 @@ DJOSER = {
         'current_user': 'user.serializers.UserSerializer',
     }
 }
+
+# Swagger
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
@@ -170,11 +196,29 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Cloudinary
+
+cloudinary.config( 
+    cloud_name = config('CLOUDINARY_CLOUDNAME'), 
+    api_key = config('CLOUDINARY_APIKEY'), 
+    api_secret = config('CLOUDINARY_APISECRET'),
+    secure=True
+)
+
+# Media files
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+MEDIA_URL = '/media/'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
+STATICFILES_STORAGE = "whitenoise.middleware.WhiteNoiseMiddleware"
+
 STATIC_URL = 'static/'
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

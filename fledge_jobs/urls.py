@@ -25,6 +25,6 @@ urlpatterns = [
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
     path('api/v1/', include('api.urls'), name='api'),
-    path('ref/api/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('ref/api/ui-2/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('api/docs/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
